@@ -2,9 +2,9 @@
 
 This is my first Python project. I built a Tic-Tac-Toe game where a human player can play against the computer.
 
-While making this project, I used the Python concepts that I had learned and tried to understand how they can be used together in a real project.
+While making this project, I used the Python concepts that I had learned and gradually improved the computer's decision-making algorithm.
 
-## 1. Things I Used While Making It
+## 1. Things I Used
 
 * Python
 * Functions
@@ -12,8 +12,10 @@ While making this project, I used the Python concepts that I had learned and tri
 * Loops
 * Conditions
 * Recursion
-* `copy` module
+* Backtracking
 * Minimax algorithm
+* Alpha-Beta Pruning
+* `copy` module
 
 ## 2. How the Game Works
 
@@ -26,139 +28,190 @@ The game checks:
 * Which positions are available
 * Which move the computer should play
 
-For the computer's moves, I used the **Minimax algorithm**. The computer looks at possible moves and tries to choose a good move based on the possible results.
+For the computer's moves, I used the **Minimax algorithm**.
+
+The computer simulates possible future moves and evaluates the possible results before choosing its move.
 
 ## 3. Why I Chose Minimax
 
 I chose Minimax because I wanted to understand how a computer can make decisions by looking at possible future moves.
 
-I also considered other approaches, such as **Reinforcement Learning (RL)**, but I decided not to use RL for this project.
+I also considered approaches such as **Reinforcement Learning (RL)**, but decided not to use RL for this project.
 
-Since Tic-Tac-Toe has a small and limited number of possible game situations, Minimax is a good way for me to understand the decision-making process directly.
+Since Tic-Tac-Toe has a relatively small number of possible game situations, Minimax allows me to directly understand the decision-making process.
 
-Using Minimax also gave me an opportunity to learn:
+Through this, I learned about:
 
 * Recursion
 * Game-state evaluation
 * Simulating possible moves
-* Choosing between different possible outcomes
-* How an AI can make decisions without simply following fixed moves
+* Backtracking
+* Decision-making
+* Searching through possible future states
 
-I wanted to understand the logic behind the computer's decisions rather than using a pre-trained model or a library that already solves the problem.
+I wanted to understand the logic behind the computer's decisions instead of using a pre-trained model or a library that already solves the game.
 
 ## 4. Main Parts of the Project
 
-### 1. `display_board()`
+### `display_board()`
 
-Its job is to display the current board data to the user.
+Displays the current board to the user.
 
-### 2. `win()`
+### `win()`
 
-Its job is to check whether the computer or the human has won, whether the game is still running, or whether the game is a draw.
+Checks whether:
 
-### 3. `get_available_move()`
+* `X` has won
+* `O` has won
+* The game is still running
+* The game is a draw
 
-It is used to find the empty positions on the board.
+### `get_available_move()`
 
-### 4. `make_move()`
+Finds all currently empty positions on the board.
 
-Its job is to take a move from the user or the computer and implement it on the actual board.
+### `make_move()`
 
-### 5. `score()`
+Places a player's move on the actual game board.
 
-Its job is to give a score to the current game:
+### `score()`
 
-* If `O` wins → score is `1`
-* If `X` wins → score is `-1`
-* If the game is a draw → score is `0`
+Evaluates the current game state:
 
-### 6. `minimax()`
+* `O` wins → `1`
+* `X` wins → `-1`
+* Draw → `0`
 
-This is the **heart of the game**.
+### `minimax()`
 
-Its job is to use the other functions to check possible future game situations and predict the best decision for the computer.
+This is the main decision-making function.
 
-### 7. `best_move()`
+It recursively explores possible future game states and determines the best result assuming both players make optimal decisions.
 
-Its job is to choose the move with the highest chance of winning.
+The basic process is:
 
-If the computer cannot win, it tries to choose a move that makes sure the game does not result in a loss and can end in a draw.
+**Make a move → Explore future moves → Reach an ending → Return the score → Undo the move**
 
-## Challenges I Faced
+### `best_move()`
 
-This project was not easy for me, especially because it was one of my first projects.
+Uses Minimax to determine which move the computer should make.
 
-### 1. Understanding Minimax
+The computer tries to maximize its score while assuming that the human player will try to minimize it.
 
-The hardest part was understanding how Minimax works.
+## 5. Improvements During Development
 
-At first, recursion inside the game was confusing because the function keeps creating new possible game situations and calling itself again.
+I did not build the final version all at once. I improved the algorithm step by step.
 
-#### What I Learned From This
+### Version 1 — Minimax + `deepcopy()`
 
-The approach that helped me understand Minimax was:
+Initially, I created a separate copy of the board for every simulated move using `copy.deepcopy()`.
 
-**Make a possible move → check what can happen next → continue until the game ends → give the result back.**
+This worked, but it required creating many additional board objects.
 
-This helped me understand how recursion can be used to look at different possible future situations.
+### Version 2 — Minimax + Backtracking
 
-### 2. Working With Copies of the Board
+I changed the implementation to reuse the same board.
 
-Another challenge was changing the board temporarily while checking possible moves.
+The basic pattern became:
 
-I learned that if I directly changed the original board, the simulated moves could affect the actual game.
+**MAKE → RECURSE → UNDO**
 
-I used `copy.deepcopy()` to create a separate copy of the board before testing a move.
+Instead of creating a new board for every possible move, the program temporarily changes a position, explores the result, and then restores the position.
 
-#### What I Learned From This
+This significantly reduced the execution time and extra memory required for creating board copies.
 
-This helped me understand how Python handles objects and memory references, and why creating a separate copy of the board is important when simulating moves.
+### Version 3 — Alpha-Beta Pruning
 
-I also learned how and why `deepcopy()` can be useful in this type of problem.
+I then added **Alpha-Beta Pruning** to Minimax.
 
-### 3. Finding Bugs
+Alpha-Beta Pruning avoids exploring branches that cannot affect the final decision.
 
-I also faced many bugs while connecting all the functions together.
+The important idea is:
 
-For example, I had problems with:
+* **Alpha** → best result currently available for `O` (MAX)
+* **Beta** → best result currently available for `X` (MIN)
+* If `alpha >= beta`, further exploration of that branch can be stopped.
 
-* Returning the correct result from `minimax()`
+This improves the efficiency of Minimax without changing the final Minimax result.
+
+## 6. Challenges I Faced
+
+### Understanding Minimax
+
+The hardest part was understanding recursion inside the game.
+
+At first, it was confusing because the function repeatedly calls itself while creating possible future game situations.
+
+The approach that helped me was:
+
+**Make a possible move → check what can happen next → continue until the game ends → return the result**
+
+### Understanding Backtracking
+
+I initially used `deepcopy()` to simulate moves.
+
+Later, I learned that I could reuse the same board by:
+
+1. Making a temporary move
+2. Recursively exploring it
+3. Undoing the move
+
+This helped me understand the **Make → Recurse → Undo** pattern.
+
+### Understanding Alpha-Beta Pruning
+
+Another challenge was understanding how Alpha and Beta work together.
+
+I learned that pruning is not about finding a specific score such as `1` or `-1`.
+
+Instead, it uses **bounds** to determine when exploring another branch is unnecessary.
+
+### Finding Bugs
+
+I also encountered several bugs while connecting the functions together, including:
+
+* Returning the correct result from Minimax
 * Choosing the correct best move
-* Handling the result returned by `win()`
+* Handling tuples returned by `win()`
 * Tuple unpacking
-* Making sure the computer's move was made on the actual board
+* Correctly modifying and restoring the board
+* Passing Alpha and Beta through recursive calls
 * Testing different game situations
 
-#### What I Learned From This
+Fixing these bugs helped me understand how data moves between functions and how recursive programs behave.
 
-Fixing these problems helped me understand my own code better.
+## 7. What I Learned
 
-Instead of only looking at the error message, I started checking how the data was moving between different functions and what each function was actually returning.
-
-## 5. What I Learned
-
-While making this project, I learned how different Python concepts can work together in one program.
-
-I also became more comfortable with:
+While making this project, I became more comfortable with:
 
 * Breaking a problem into functions
 * Working with lists
-* Using recursion
-* Creating and testing different game states
-* Finding and fixing bugs
-* Understanding how copies of objects work
-* Understanding the basic idea behind the Minimax algorithm
-* Thinking about how a computer can make decisions
+* Recursion
+* Backtracking
+* Game-state evaluation
+* Searching possible future states
+* Debugging
+* Understanding object references
+* Using `deepcopy()`
+* Optimizing a recursive algorithm
+* Understanding Minimax
+* Understanding Alpha-Beta Pruning
 
-## 6. Current Status
+Most importantly, I learned that an algorithm can often be improved by understanding **what work is unnecessary**, rather than simply making the computer do the same work faster.
 
-The basic Tic-Tac-Toe game and computer player are working.
+## 8. Current Status
 
-I am continuing to improve the project and understand the Minimax algorithm better.
+The Tic-Tac-Toe game and computer player are working.
 
-## 7. How to Run
+The project currently uses:
 
-Clone the repository and run:
+* Minimax
+* Backtracking
+* Alpha-Beta Pruning
+
+I plan to continue improving the project and experimenting with different optimization techniques.
+
+## 9. How to Run
 
 ```bash
 python tic_tac_toe.py
