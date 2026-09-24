@@ -1,4 +1,6 @@
 import copy
+import time 
+count=0
 def display_board(p):
     n=len(p)
     for i in p:
@@ -23,7 +25,7 @@ def win(board):
     if i.count(" ")!=0:
       return None
   else:
-      return "tie","draw"
+      return "tie","draw"  
 
 def get_available_move(d):
    free_move=[]
@@ -49,7 +51,9 @@ def score(d):
     return -1
    elif u[1].lower()=="draw":
     return 0
-def minimax(d,player):
+def minimax(d,player,alpha,beta):
+   global count
+   count+=1
    result=score(d)
    if result is not None:
     return result
@@ -58,20 +62,24 @@ def minimax(d,player):
      best_score_max=-1
      best_score_min=1
      for i,j in moves:
-       virtual_game=copy.deepcopy(d)
-       virtual_game=make_move(virtual_game,(i,j),player)
+       d=make_move(d,(i,j),player)
        if player=="x":
-         current_score=minimax(virtual_game,"o")
+         current_score=minimax(d,"o",alpha,beta)
          if current_score<best_score_min:
            best_score_min=current_score
+           beta = current_score
        elif player=="o":
-         current_score=minimax(virtual_game,"x")
+         current_score=minimax(d,"x",alpha,beta)
          if current_score>best_score_max:
            best_score_max=current_score
+           alpha = current_score
+       d[i][j]=" "
+       if alpha>=beta:
+                break 
      if player=="x":
       return best_score_min
      else:
-      return best_score_max
+      return best_score_max    
 def best_move(board,player):
     best_score=-1
     best_position=""
@@ -83,7 +91,7 @@ def best_move(board,player):
     for i in moves:
       virtual_game=copy.deepcopy(board)
       make_move(virtual_game,i,player)
-      current_score=minimax(virtual_game,opponent)
+      current_score=minimax(virtual_game,opponent,float("-inf"),float("inf"))
       if current_score>best_score:
         best_score=current_score
         best_position=i
@@ -99,7 +107,7 @@ while True:
      x=best_move(d,"o")
      make_move(d,x,"o")
      display_board(d)
-     if win(d)==("winner","o") or win(d)==("tie","draw"):
+     if win(d)==("winner","o") or win(d)==("tie","draw"): 
        break
   elif win(d)[0]=="winner":
      i,j=win(d)
@@ -108,3 +116,8 @@ while True:
   elif win(d)[0]=="tie":
      print("draw")
      break
+start = time.perf_counter()
+x = best_move(d, "o")
+end = time.perf_counter()
+print("Time:", end - start)
+print(count)
