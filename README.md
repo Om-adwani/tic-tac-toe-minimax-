@@ -209,7 +209,7 @@ The project currently uses:
 * Backtracking
 * Alpha-Beta Pruning
 
-I plan to continue improving the project and experimenting with different optimization techniques.
+I plan to continue improving the project and experimenting with different optimization techniques and if you have any idea about optimizing it you can share it to me .
 
 ## 9. How to Run
 
